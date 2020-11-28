@@ -4,6 +4,7 @@ import (
 	"fmt"
 	"io/ioutil"
 	"net/http"
+	"time"
 
 	"github.com/snirkop89/go-httpclient/gohttp"
 )
@@ -14,6 +15,10 @@ var (
 
 func getGithubClient() gohttp.HttpClient {
 	client := gohttp.New()
+
+	client.SetMaxIdleConnections(20)
+	client.SetConnectionTimeout(2 * time.Second)
+	client.SetResponseTimeout(1 * time.Second)
 
 	// commonHeaders := make(http.Header)
 	// commonHeaders.Set("Authorization", "Bearer ABC-123")
@@ -31,8 +36,8 @@ func main() {
 }
 
 type User struct {
-	FirstName string `json:first_name`
-	LastName  string `json:last_name`
+	FirstName string `json:"first_name"`
+	LastName  string `json:"last_name"`
 }
 
 func getUrls() {
