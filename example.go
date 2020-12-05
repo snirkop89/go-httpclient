@@ -2,8 +2,6 @@ package main
 
 import (
 	"fmt"
-	"io/ioutil"
-	"net/http"
 
 	"github.com/snirkop89/go-httpclient/gohttp"
 )
@@ -27,7 +25,11 @@ func getGithubClient() gohttp.Client {
 }
 
 func main() {
-	getUrls()
+	for i := 0; i < 1000; i++ {
+		go func() {
+			getUrls()
+		}()
+	}
 }
 
 type User struct {
@@ -36,19 +38,19 @@ type User struct {
 }
 
 func getUrls() {
-	headers := make(http.Header)
+	// headers := make(http.Header)
 	// headers.Set("Authorization", "Bearer ABC-123")
 
-	response, err := githubHttpClient.Get("https://api.github.com", headers)
+	response, err := githubHttpClient.Get("https://api.github.com", nil)
 	if err != nil {
 		panic(err)
 	}
 
-	fmt.Println(response.StatusCode)
-
-	defer response.Body.Close()
-	bytes, _ := ioutil.ReadAll(response.Body)
-	fmt.Println(string(bytes))
+	var user User
+	if err := response.UnmarshalJson(&user); err != nil {
+		panic(err)
+	}
+	// fmt.Println(user.FirstName)
 }
 
 func createUser(user User) {
@@ -57,9 +59,7 @@ func createUser(user User) {
 		panic(err)
 	}
 
-	fmt.Println(response.StatusCode)
+	fmt.Println(response.StatusCode())
 
-	defer response.Body.Close()
-	bytes, _ := ioutil.ReadAll(response.Body)
-	fmt.Println(string(bytes))
+	fmt.Println(response.String())
 }
